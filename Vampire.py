@@ -21,7 +21,7 @@ redeem_codes_collection = db['redeem_codes']
 attack_logs_collection = db['user_attack_logs']
 
 # Bot Configuration
-TELEGRAM_BOT_TOKEN = '7787261970:AAG9Tp0V2m5-4CBuEWbpbvkux2jvbrg2Usw'
+TELEGRAM_BOT_TOKEN = '7787261970:AAHoXN-A4b_Bt2woZGui-CmNpSq6OaoBong'
 ADMIN_USER_ID = 529691217
 COOLDOWN_PERIOD = timedelta(minutes=1) 
 user_last_attack_time = {} 
@@ -352,7 +352,7 @@ async def start(update: Update, context: CallbackContext):
     message = (
          "*🔥 ıllıllı ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴛʜᴇ ÐȺƦʞᏔǝß ıllıllı 🔥*\n\n"
         "*Use 🖥️ /attack <ip> <port> <duration>*\n"
-        "💌/redeem - Redeem code"
+        "*💌/redeem - Redeem code*\n"
         "*☄️ꜱᴇʀᴠᴇʀ ꜰʀᴇᴇᴢ ᴡɪᴛʜ @Demon_Rocky 🚀*"
     )
     await context.bot.send_message(chat_id=chat_id, text=message, parse_mode='Markdown')
